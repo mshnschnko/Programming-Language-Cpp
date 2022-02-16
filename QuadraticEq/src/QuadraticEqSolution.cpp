@@ -12,8 +12,8 @@ int Solution(const double a, const double b, const double c, double& x1, double&
 	}
 	else
 	{
-		x1 = (-b + sqrt(discriminant)) / 2 / a;
-		x2 = (-b - sqrt(discriminant)) / 2 / a;
+		x1 = (-b + sqrt(discriminant)) / (2 * a);
+		x2 = (-b - sqrt(discriminant)) / (2 * a);
 		return 2;
 	}
 }
