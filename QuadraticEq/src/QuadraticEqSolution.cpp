@@ -1,6 +1,6 @@
 #include "QuadraticEqHeader.hpp"
 
-int Solution(const double a, const double b, const double c, double& x1, double& x2)
+int solution(const double a, const double b, const double c, double& x1, double& x2)
 {
 	double discriminant = b * b - 4 * a * c;
 	if (discriminant < 0)
@@ -18,13 +18,12 @@ int Solution(const double a, const double b, const double c, double& x1, double&
 	}
 }
 
-int main()
-{
+int solver() {
 	double a, b, c;
 	std::cout << "please enter quotients a, b, c separating them by space: ";
 	std::cin >> a >> b >> c;
 	double x1, x2;
-	int rootsCount = Solution(a, b, c, x1, x2);
+	int rootsCount = solution(a, b, c, x1, x2);
 	if (rootsCount == 0)
 		std::cout << "No roots";
 	else if (rootsCount == 1)
@@ -32,4 +31,9 @@ int main()
 	else
 		std::cout << "x1 = " << x1 << "\nx2 = " << x2;
 	return 0;
+}
+
+int main()
+{
+	return solver();
 }
