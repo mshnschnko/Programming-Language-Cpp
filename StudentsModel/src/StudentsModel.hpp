@@ -26,5 +26,5 @@ typedef struct equal {
 	double a, b, c;
 } equal;
 
-void solution(const double a, const double b, const double c, answer* roots);
-answer* solver();
+void solution(const double a, const double b, const double c, answer& roots);
+void solver(vector <equal>& eqList, vector <answer>& roots);
