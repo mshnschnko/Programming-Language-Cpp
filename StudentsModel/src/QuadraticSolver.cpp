@@ -24,8 +24,8 @@ void solution(const double a, const double b, const double c, answer* roots) {
 
 answer* solver() {
 	double a, b, c;
-	std::cout << "please enter quotients a, b, c separating them by space: ";
-	std::cin >> a >> b >> c;
+	cout << "please enter quotients a, b, c separating them by space: ";
+	cin >> a >> b >> c;
 	answer* roots = new answer;
 	solution(a, b, c, roots);
 	return roots;

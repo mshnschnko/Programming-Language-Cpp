@@ -22,11 +22,11 @@ public:
 	}
 	void sendAnswers(FILE* stream) {
 		if (_roots->cnt == 0)
-			std::cout << "No roots" << std::endl;
+			cout << "No roots" << endl;
 		else if (_roots->cnt == 1)
-			std::cout << "x = " << _roots->roots[0] << std::endl;
+			cout << "x = " << _roots->roots[0] << endl;
 		else
-			std::cout << "x1 = " << _roots->roots[0] << "\nx2 = " << _roots->roots[1] << std::endl;
+			cout << "x1 = " << _roots->roots[0] << "\nx2 = " << _roots->roots[1] << endl;
 	}
 };
 
@@ -38,7 +38,7 @@ public:
 		_roots->roots[0] = _roots->roots[0] = 0;
 	}
 	void sendAnswer(FILE* stream) {
-		std::cout << "x = " << _roots->roots[0] << std::endl;
+		cout << "x = " << _roots->roots[0] << endl;
 	}
 };
 
@@ -56,23 +56,34 @@ public:
 	}
 	void sendAnswers(FILE* stream) {
 		if (_roots->cnt == 0)
-			std::cout << "No roots" << std::endl;
+			cout << "No roots" << endl;
 		else if (_roots->cnt == 1)
-			std::cout << "x = " << _roots->roots[0] << std::endl;
+			cout << "x = " << _roots->roots[0] << endl;
 		else
-			std::cout << "x1 = " << _roots->roots[0] << "\nx2 = " << _roots->roots[1] << std::endl;
+			cout << "x1 = " << _roots->roots[0] << "\nx2 = " << _roots->roots[1] << endl;
 	}
 };
 
-equals* readFile() {
-
+vector <equal> readFile() {
+	FILE* input = fopen("input.txt", "r");
+	if (!input)
+		return;
+	vector <equal> eqList;
+	equal eq;
+	while (fscanf(input, "%lf %lf %lf\n", &eq.a, &eq.b, &eq.c) != EOF) {
+		eqList.push_back(eq);
+		/*cout << eq.a << " " << eq.b << " " << eq.c << endl;*/
+	}
+	for (int i = 0; i < eqList.size(); ++i)
+		cout << eqList.at(i).a << " " << eqList.at(i).b << " " << eqList.at(i).c << endl;
+	return eqList;
 }
 
 int main() {
 	setlocale(LC_ALL, "Russian");
 	queue <std::any> q;
 	//student Vasya = student("Василий");
-	//std::cout << Vasya.getname() << std::endl;
+	//cout << Vasya.getname() << endl;
 	//goodStudent Gena = goodStudent("Геннадий");
 	//Gena.solveEq();
 	//Gena.sendAnswers(stdout);
@@ -80,7 +91,8 @@ int main() {
 	//Zhendos.solveEq();
 	//Zhendos.sendAnswer(stdout);
 	normStudent Boris = normStudent("Серьезный Борис");
-	std::cout << Boris.getname() << std::endl;
+	cout << Boris.getname() << endl;
+	vector <equal> eqList = readFile();
 	//Boris.solveEq();
 	//Boris.sendAnswers(stdout);
 	return 0;
