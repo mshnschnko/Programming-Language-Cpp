@@ -14,7 +14,7 @@ void readFile(vector <equal>& eqList) {
 	return;
 }
 
-void checkWorks(vector <equal> eqList, queue <student*>& completed) {
+void checkWorks(vector <equal>& eqList, queue <student*>& completed) {
 	vector <answer> rightAns;
 	for (int i = 0; i < eqList.size(); ++i) {
 		answer ans;
@@ -46,11 +46,39 @@ void checkWorks(vector <equal> eqList, queue <student*>& completed) {
 	}
 } 
 
-int menu() {
+//int menu() {
+//	int command;
+//	cout << "\t\tОсновное меню" << endl << endl;
+//	cout << "Выберите команду" << endl;
+//	cout << "1. Сдать работу" << endl << "2. Проверить работы" << endl << "3. Вывести результаты" << endl << endl << "0. Выход" << endl << endl;
+//	cin >> command;
+//	while (command != 0)
+//	{
+//		switch (command)
+//		{
+//		case 1:
+//			system("cls");
+//			cout << "Выберите команду" << endl;
+//			cout << "1. Сдать работу" << endl << "2. Проверить работы" << endl << "3. Вывести результаты" << endl << endl << "0. Выход" << endl << endl;
+//			cin >> command;
+//			break;
+//		case 2:
+//			cin >> command;
+//			break;
+//		case 3:
+//			cin >> command;
+//			break;
+//		case 0:
+//			break;
+//		}
+//	}
+//	return 0;
+//}
+
+int menu(vector <equal>& eqList, queue <student*>& completed) {
+	cout << "\t\tВыберите команду" << endl;
+	cout << "1. Вывести таблицу результатов" << endl << "0. Выход" << endl;
 	int command;
-	cout << "\t\tОсновное меню" << endl << endl;
-	cout << "Выберите команду" << endl;
-	cout << "1. Сдать работу" << endl << "2. Проверить работы" << endl << "3. Вывести результаты" << endl << endl << "0. Выход" << endl << endl;
 	cin >> command;
 	while (command != 0)
 	{
@@ -58,17 +86,15 @@ int menu() {
 		{
 		case 1:
 			system("cls");
-			cout << "Выберите команду" << endl;
-			cout << "1. Сдать работу" << endl << "2. Проверить работы" << endl << "3. Вывести результаты" << endl << endl << "0. Выход" << endl << endl;
-			cin >> command;
-			break;
-		case 2:
-			cin >> command;
-			break;
-		case 3:
-			cin >> command;
-			break;
+			checkWorks(eqList, completed);
+			return 0;
 		case 0:
+			return 0;
+		default:
+			system("cls");
+			cout << "\t\tВыберите команду" << endl;
+			cout << "1. Вывести таблицу результатов" << endl << "0. Выход" << endl;
+			cin >> command;
 			break;
 		}
 	}
@@ -98,6 +124,6 @@ int main() {
 	//for (int i = 0; i < eqList.size(); ++i)
 	//	cout << "Имя: " << completed.front()->getname() << "; " << " количество корней: " << completed.front()->getroots().at(i).cnt << " ответ: " << completed.front()->getroots().at(i).roots[0] << "; " << completed.front()->getroots().at(i).roots[1] << endl;
 	//completed.pop();
-	checkWorks(eqList, completed);
-	return 0;
+	//checkWorks(eqList, completed);
+	return menu(eqList, completed);
 }

@@ -38,8 +38,8 @@ class student;
 
 void solver(equal& eq, answer& roots);
 void readFile(vector <equal>& eqList);
-void checkWorks(vector <equal> eqList, queue <student*>& completed);
-int menu();
+void checkWorks(vector <equal>& eqList, queue <student*>& completed);
+int menu(vector <equal>& eqList, queue <student*>& completed);
 
 class student {
 public:
