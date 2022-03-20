@@ -141,6 +141,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\interface.cpp" />
     <ClCompile Include="src\QuadraticSolver.cpp" />
     <ClCompile Include="src\students.cpp" />
   </ItemGroup>
