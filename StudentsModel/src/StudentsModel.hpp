@@ -9,6 +9,7 @@
 #include <queue>
 #include <any>
 #include <vector>
+#include <iomanip>
 
 using std::string;
 using std::cin;
@@ -19,8 +20,8 @@ using std::vector;
 
 typedef struct answer {
 	int cnt = 0;
-	double x1;
-	double x2;
+	double x1 = 0;
+	double x2 = 0;
 	bool operator == (const answer ans) const {
 		if (this->cnt == ans.cnt && this->x1 == ans.x1 && this->x2 == ans.x2)
 			return true;

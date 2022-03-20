@@ -10,7 +10,7 @@ void readFile(vector <equal>& eqList) {
 		/*cout << eq.a << " " << eq.b << " " << eq.c << endl;*/
 	}
 	for (int i = 0; i < eqList.size(); ++i)
-		cout << eqList.at(i).a << " " << eqList.at(i).b << " " << eqList.at(i).c << endl;
+		//cout << eqList.at(i).a << " " << eqList.at(i).b << " " << eqList.at(i).c << endl;
 	return;
 }
 
@@ -21,8 +21,10 @@ void checkWorks(vector <equal> eqList, queue <student*>& completed) {
 		solver(eqList.at(i), ans);
 		rightAns.push_back(ans);
 	}
-	cout << "+---------------------------------------------------------------+" << endl;
-	cout << ""
+	int nameLen = 40;
+	cout << "+" << std::setfill('-') << std::setw(59) << "+" << endl;
+	cout << "||                 ФИО                 " << "| ответы  | оценка || " << endl;
+	cout << "+" << std::setfill('-') << std::setw(59) << "+" << endl;
 	while (!completed.empty()) {
 		int cntRight = 0;
 		for (int i = 0; i < eqList.size(); ++i)
@@ -38,10 +40,11 @@ void checkWorks(vector <equal> eqList, queue <student*>& completed) {
 			grade = 4;
 		else
 			grade = 5;
-		cout << completed.front()->getname() << "\t" << cntRight << "/" << eqList.size() << "\t" << "оценка: " << grade << endl;
+		cout << "|| " << completed.front()->getname() << std::setfill(' ') << std::setw(nameLen - completed.front()->getname().length()) << "|   " << cntRight << "/" << eqList.size() << "   |    " << grade << "   ||" << endl;
+		cout << "+" << std::setfill('-') << std::setw(59) << "+" << endl;
 		completed.pop();
 	}
-}
+} 
 
 int menu() {
 	int command;
