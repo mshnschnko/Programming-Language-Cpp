@@ -1,4 +1,8 @@
-#include "StudentsModel.hpp"
+#include "teacherHeader.hpp"
+#include "studentHeader.hpp"
+
+const vector <string> g_firstName = { "Степан", "Борис", "Влад", "Петр", "Игнат", "Назиф", "Дмитрий", "Анатолий"};
+const vector <string> g_lastName = { "Серьёзный", "Крышкин", "Тубочкин", "Ашейчик", "Бомбов", "Станкевич", "Тапица", "Кварталин" };
 
 void readFile(vector <equal>& eqList) {
 	FILE* input = fopen("input.txt", "r");
@@ -7,123 +11,51 @@ void readFile(vector <equal>& eqList) {
 	equal eq;
 	while (fscanf(input, "%lf %lf %lf\n", &eq.a, &eq.b, &eq.c) != EOF) {
 		eqList.push_back(eq);
-		/*cout << eq.a << " " << eq.b << " " << eq.c << endl;*/
 	}
-	for (int i = 0; i < eqList.size(); ++i)
-		//cout << eqList.at(i).a << " " << eqList.at(i).b << " " << eqList.at(i).c << endl;
 	return;
 }
 
-void checkWorks(vector <equal>& eqList, queue <student*>& completed) {
-	vector <answer> rightAns;
-	for (int i = 0; i < eqList.size(); ++i) {
-		answer ans;
-		solver(eqList.at(i), ans);
-		rightAns.push_back(ans);
-	}
-	int nameLen = 40;
-	cout << "+" << std::setfill('-') << std::setw(59) << "+" << endl;
-	cout << "||                 ФИО                 " << "| ответы  | оценка || " << endl;
-	cout << "+" << std::setfill('-') << std::setw(59) << "+" << endl;
-	while (!completed.empty()) {
-		int cntRight = 0;
-		for (int i = 0; i < eqList.size(); ++i)
-			if (rightAns.at(i) == completed.front()->getroots().at(i))
-				cntRight++;
-		double percent = cntRight / (double)eqList.size() * 100;
-		int grade;
-		if (percent < 50)
-			grade = 2;
-		else if (percent >= 50 && percent < 70)
-			grade = 3;
-		else if (percent >= 70 && percent < 90)
-			grade = 4;
-		else
-			grade = 5;
-		cout << "|| " << completed.front()->getname() << std::setfill(' ') << std::setw(nameLen - completed.front()->getname().length()) << "|   " << cntRight << "/" << eqList.size() << "   |    " << grade << "   ||" << endl;
-		cout << "+" << std::setfill('-') << std::setw(59) << "+" << endl;
-		completed.pop();
-	}
-} 
+string createName(const int i, const int j) {
+	return (g_lastName.at(i) + " " + g_firstName.at(j));
+}
 
-//int menu() {
-//	int command;
-//	cout << "\t\tОсновное меню" << endl << endl;
-//	cout << "Выберите команду" << endl;
-//	cout << "1. Сдать работу" << endl << "2. Проверить работы" << endl << "3. Вывести результаты" << endl << endl << "0. Выход" << endl << endl;
-//	cin >> command;
-//	while (command != 0)
-//	{
-//		switch (command)
-//		{
-//		case 1:
-//			system("cls");
-//			cout << "Выберите команду" << endl;
-//			cout << "1. Сдать работу" << endl << "2. Проверить работы" << endl << "3. Вывести результаты" << endl << endl << "0. Выход" << endl << endl;
-//			cin >> command;
-//			break;
-//		case 2:
-//			cin >> command;
-//			break;
-//		case 3:
-//			cin >> command;
-//			break;
-//		case 0:
-//			break;
-//		}
-//	}
-//	return 0;
-//}
-
-int menu(vector <equal>& eqList, queue <student*>& completed) {
-	cout << "\t\tВыберите команду" << endl;
-	cout << "1. Вывести таблицу результатов" << endl << "0. Выход" << endl;
-	int command;
-	cin >> command;
-	while (command != 0)
-	{
-		switch (command)
-		{
-		case 1:
-			system("cls");
-			checkWorks(eqList, completed);
-			return 0;
-		case 0:
-			return 0;
-		default:
-			system("cls");
-			cout << "\t\tВыберите команду" << endl;
-			cout << "1. Вывести таблицу результатов" << endl << "0. Выход" << endl;
-			cin >> command;
-			break;
+void fillStudentQueue(queue <student*>& completed, vector <equal>& eqList) {
+	goodStudent* stud1;
+	normStudent* stud2;
+	badStudent* stud3;
+	int random;
+	for (int i = 0; i < g_lastName.size(); ++i)
+		for (int j = 0; j < g_firstName.size(); ++j) {
+			random = rand() % 3;
+			switch (random) {
+			case 0:
+				stud1 = new goodStudent(createName(i, j));
+				stud1->solveEq(eqList);
+				stud1->sendAnswers(completed);
+				break;
+			case 1:
+				stud2 = new normStudent(createName(i, j));
+				stud2->solveEq(eqList);
+				stud2->sendAnswers(completed);
+				break;
+			case 2:
+				stud3 = new badStudent(createName(i, j));
+				stud3->solveEq(eqList);
+				stud3->sendAnswers(completed);
+				break;
+			}
 		}
-	}
-	return 0;
 }
 
 int main() {
+	srand(time(NULL));
 	setlocale(LC_ALL, "Russian");
 	queue <student*> completed;
 	vector <equal> eqList;
 	readFile(eqList);
-	goodStudent Gena = goodStudent("Геннадий");
-	Gena.solveEq(eqList);
-	Gena.sendAnswers(completed);
-	//for (int i = 0; i < eqList.size(); ++i)
-	//	cout << "Имя: " << completed.front()->getname() << "; " << " количество корней: " << completed.front()->getroots().at(i).cnt << " ответ: " << completed.front()->getroots().at(i).roots[0] << "; " << completed.front()->getroots().at(i).roots[1] << endl;
-	//completed.pop();
-	stupidStudent Zhendos = stupidStudent("Жекич");
-	Zhendos.solveEq(eqList);
-	Zhendos.sendAnswers(completed);
-	//for (int i = 0; i < eqList.size(); ++i)
-	//	cout << "Имя: " << completed.front()->getname() << "; " << " количество корней: " << completed.front()->getroots().at(i).cnt << " ответ: " << completed.front()->getroots().at(i).roots[0] << "; " << completed.front()->getroots().at(i).roots[1] << endl;
-	//completed.pop();
-	normStudent Boris = normStudent("Серьезный Борис");
-	Boris.solveEq(eqList);
-	Boris.sendAnswers(completed);
-	//for (int i = 0; i < eqList.size(); ++i)
-	//	cout << "Имя: " << completed.front()->getname() << "; " << " количество корней: " << completed.front()->getroots().at(i).cnt << " ответ: " << completed.front()->getroots().at(i).roots[0] << "; " << completed.front()->getroots().at(i).roots[1] << endl;
-	//completed.pop();
-	//checkWorks(eqList, completed);
-	return menu(eqList, completed);
+	fillStudentQueue(completed, eqList);
+	teacher Prepod("Владимир Ильич");
+	Prepod.checkWorks(eqList, completed);
+	Prepod.printTable();
+	return 0;
 }

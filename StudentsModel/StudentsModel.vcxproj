@@ -141,12 +141,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\interface.cpp" />
     <ClCompile Include="src\QuadraticSolver.cpp" />
+    <ClCompile Include="src\StudentaClasses.cpp" />
     <ClCompile Include="src\students.cpp" />
+    <ClCompile Include="src\teacherClass.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\studentHeader.hpp" />
     <ClInclude Include="src\StudentsModel.hpp" />
+    <ClInclude Include="src\teacherHeader.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
