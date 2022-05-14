@@ -33,7 +33,7 @@ public:
         shape.setOrigin(ballRadius, ballRadius);
     }
 
-    void update(Sound& minusPointSound) {
+    virtual void update(Sound& minusPointSound) {
         shape.move(velocity);
 
         if (left() < 0)
@@ -57,6 +57,28 @@ public:
     float top() { return y() - shape.getRadius(); }
     float bottom() { return y() + shape.getRadius(); }
 };
+
+class ExtraBall : public Ball {
+public:
+    bool needToUpdate;
+    ExtraBall(float mX, float mY) : Ball::Ball(mX, mY), needToUpdate(true) {};
+    
+    virtual void update(Sound& minusPointSound) override {
+        shape.move(velocity);
+
+        if (left() < 0)
+            velocity.x = ballVelocity;
+        else if (right() > windowWidth)
+            velocity.x = -ballVelocity;
+
+        if (top() < 0)
+            velocity.y = ballVelocity;
+        else if (bottom() > windowHeight)
+            needToUpdate = false;
+    }
+};
+
+vector <ExtraBall> extraBallVec;
 
 class rectangle {
 public:
@@ -99,21 +121,24 @@ class Brick : public rectangle {
 public:
     int hp;
     bonusType bonus;
-    Brick(float mX, float mY, int mHP, bonusType mBonus) {
-        shape.setPosition(mX, mY);
-        shape.setSize({ blockWidth, blockHeight });
-        shape.setFillColor({ 255, 255, 0, 255 });
-        shape.setOrigin(blockWidth / 2.f, blockHeight / 2.f);
-        hp = mHP;
-        bonus = mBonus;
-    }
-    Brick(float mX, float mY, int mHP, const Color& color, bonusType mBonus) {
+    bool boost;
+    //Brick(float mX, float mY, int mHP, bonusType mBonus, bool mBoost) {
+    //    shape.setPosition(mX, mY);
+    //    shape.setSize({ blockWidth, blockHeight });
+    //    shape.setFillColor({ 255, 255, 0, 255 });
+    //    shape.setOrigin(blockWidth / 2.f, blockHeight / 2.f);
+    //    hp = mHP;
+    //    bonus = mBonus;
+    //    boost = mBoost;
+    //}
+    Brick(float mX, float mY, int mHP, const Color& color, bonusType mBonus, bool mBoost) {
         shape.setPosition(mX, mY);
         shape.setSize({ blockWidth, blockHeight });
         shape.setFillColor(color);
         shape.setOrigin(blockWidth / 2.f, blockHeight / 2.f);
         hp = mHP;
         bonus = mBonus;
+        boost = mBoost;
     }
 };
 
@@ -144,11 +169,12 @@ public:
     Vector2f velocity{ 0.f, 5.f };
     bool catched{ false };
     bool lost{ false };
-    bonusDrop(float mX, float mY) {
+    bonusDrop(float mX, float mY, bonusType mBonus) {
         shape.setPosition(mX, mY);
         shape.setSize({ blockWidth / 4.f, blockHeight / 2.f });
         shape.setFillColor(Color::Blue);
         shape.setOrigin(blockWidth / 2.f, blockHeight / 2.f);
+        bonus = mBonus;
     }
 
     void update() {
@@ -196,13 +222,12 @@ void testCollision(Brick& mBrick, Ball& mBall, Sound& plusPointSound) {
         playerScore++;
     }
     if (mBrick.hp == 0) {
-        if (mBrick.bonus == bonusType::moovingBlock) {
+        if (mBrick.bonus != bonusType::none) {
             //MovingBrick movingBrick(mBrick.x(), mBrick.y() + (blockHeight + 3));
             //movBricksVector.emplace_back(mBrick.x(), (movBricksVector.size() + countBlocksY + 2) * (blockHeight + 3));
-            bonusDropVector.emplace_back(mBrick.x(), mBrick.y());
+            bonusDropVector.emplace_back(mBrick.x(), mBrick.y(), mBrick.bonus);
             // œ–»ƒ”Ã¿“‹  ¿  ¬≈–Õ”“‹ 
         }
-            //initMoovingBlock(mBrick);
     }
     float overlapLeft{ mBall.right() - mBrick.left() };
     float overlapRight{ mBrick.right() - mBall.left() };
@@ -215,10 +240,14 @@ void testCollision(Brick& mBrick, Ball& mBall, Sound& plusPointSound) {
     float minOverlapX{ ballFromLeft ? overlapLeft : overlapRight };
     float minOverlapY{ ballFromTop ? overlapTop : overlapBottom };
 
+    int factor = 1;
+    if (mBrick.boost)
+        factor = 2;
     if (abs(minOverlapX) < abs(minOverlapY))
-        mBall.velocity.x = ballFromLeft ? -ballVelocity : ballVelocity;
+        mBall.velocity.x = (ballFromLeft ? -ballVelocity : ballVelocity) * factor;
     else
-        mBall.velocity.y = ballFromTop ? -ballVelocity : ballVelocity;
+        mBall.velocity.y = (ballFromTop ? -ballVelocity : ballVelocity) * factor;
+    
     plusPointSound.play();
 }
 
@@ -250,9 +279,34 @@ void testCollision(MovingBrick& mBrick, Ball& mBall, Sound& plusPointSound) {
 
 void testCollision(bonusDrop& mBonus, Paddle& mPaddle, Sound& bonus) {
     if (!isIntersecting(mBonus, mPaddle)) return;
-    movBricksVector.emplace_back(mBonus.x(), (movBricksVector.size() + countBlocksY + 2) * (blockHeight + 3));
+    if (mBonus.bonus == bonusType::moovingBlock)
+        movBricksVector.emplace_back(mBonus.x(), (movBricksVector.size() + countBlocksY + 2) * (blockHeight + 3));
+    else if (mBonus.bonus == bonusType::extraBall)
+        extraBallVec.emplace_back(mBonus.x(), mPaddle.y() - 20);
     mBonus.catched = true;
     bonus.play();
+}
+
+void testCollision(ExtraBall& mExtraBall, Ball& mBall, Sound& ballSound) {
+    if (!isIntersecting(mExtraBall, mBall)) return;
+
+    if (fabs(mBall.bottom() - mExtraBall.top()) < 5) {
+        mBall.velocity.y = -ballVelocity;
+        mExtraBall.velocity.y = ballVelocity;
+    }
+    else if (fabs(mBall.top() - mExtraBall.bottom()) < 5) {
+        mBall.velocity.y = ballVelocity;
+        mExtraBall.velocity.y = -ballVelocity;
+    }
+    else if (fabs(mBall.right() - mExtraBall.left()) < 5) {
+        mBall.velocity.x = -ballVelocity;
+        mExtraBall.velocity.x = -ballVelocity;
+    }       
+    else if (fabs(mBall.left() - mExtraBall.right()) < 5) {
+        mBall.velocity.x = ballVelocity;
+        mExtraBall.velocity.x = -ballVelocity;
+    }
+    ballSound.play();
 }
 
 int main() {
@@ -273,18 +327,21 @@ int main() {
                 bonus = bonusType::extraBall;
                 break;
             default:
-                bonus = bonusType::moovingBlock;
+                bonus = bonusType::none;
                 break;
             }
             switch (iY) {
             case 0:
-                bricks.emplace_back((iX + 1) * (blockWidth + 3) + 22, (iY + 2) * (blockHeight + 3), -1, brown, bonus);
+                bricks.emplace_back((iX + 1) * (blockWidth + 3) + 32, (iY + 2) * (blockHeight + 3), -1, brown, bonus, false);
                 break;
             case 2:
-                bricks.emplace_back((iX + 1) * (blockWidth + 3) + 22, (iY + 2) * (blockHeight + 3), 2, Color::Green, bonus);
+                bricks.emplace_back((iX + 1) * (blockWidth + 3) + 32, (iY + 2) * (blockHeight + 3), 2, Color::Green, bonus, false);
                 break;
             default:
-                bricks.emplace_back((iX + 1) * (blockWidth + 3) + 22, (iY + 2) * (blockHeight + 3), 1, bonus);
+                if (iX % 3 == 0)
+                    bricks.emplace_back((iX + 1) * (blockWidth + 3) + 32, (iY + 2) * (blockHeight + 3), 1, Color::Cyan, bonus, true);
+                else
+                    bricks.emplace_back((iX + 1) * (blockWidth + 3) + 32, (iY + 2) * (blockHeight + 3), 1, Color::Yellow, bonus, false);
                 break;
             }
         }
@@ -334,7 +391,12 @@ int main() {
         ball.update(minusPointSound);
         paddle.update();
         //testCollision(paddle, ball, ballSound);
-        for (auto& brick : bricks) testCollision(brick, ball, plusPointSound);
+        for (auto& brick : bricks) {
+            testCollision(brick, ball, plusPointSound);
+            for (auto& extraball : extraBallVec)
+                if (extraball.needToUpdate)
+                    testCollision(brick, extraball, plusPointSound);
+        }
 
         bricks.erase(remove_if(begin(bricks), end(bricks),
             [](const Brick& mBrick) {
@@ -345,7 +407,12 @@ int main() {
         for (auto& brick : movBricksVector) {
             brick.update();
             testCollision(brick, ball, plusPointSound);
+            for (auto& extraball : extraBallVec)
+                if (extraball.needToUpdate)
+                    testCollision(brick, extraball, plusPointSound);
         }
+
+
 
         for (auto& bonus : bonusDropVector) {
             bonus.update();
@@ -367,10 +434,20 @@ int main() {
 
         window.draw(ball.shape);
         window.draw(paddle.shape);
+        for (auto& extraball : extraBallVec) {
+            if (extraball.needToUpdate) {
+                extraball.update(minusPointSound);
+                testCollision(paddle, extraball, ballSound);
+                testCollision(extraball, ball, ballSound);
+            }
+        }
         testCollision(paddle, ball, ballSound);
         for (auto& brick : bricks) window.draw(brick.shape);
         for (auto& brick : movBricksVector) window.draw(brick.shape);
         for (auto& brick : bonusDropVector) window.draw(brick.shape);
+        for (auto& extraball : extraBallVec)
+            if (extraball.needToUpdate)
+                window.draw(extraball.shape);
         ostringstream playerScoreStr;
         playerScoreStr << playerScore;
         score.setString("Score: " + playerScoreStr.str());
