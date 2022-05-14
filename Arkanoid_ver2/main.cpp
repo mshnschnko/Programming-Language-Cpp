@@ -390,12 +390,24 @@ int main() {
 
         ball.update(minusPointSound);
         paddle.update();
+
+        for (auto& bonus : bonusDropVector) {
+            bonus.update();
+            testCollision(bonus, paddle, bonusSound);
+        }
+
+        extraBallVec.erase(remove_if(begin(extraBallVec), end(extraBallVec),
+            [](const ExtraBall& mExtraBall) {
+                return (!mExtraBall.needToUpdate);
+            }),
+            end(extraBallVec));
+
         //testCollision(paddle, ball, ballSound);
         for (auto& brick : bricks) {
             testCollision(brick, ball, plusPointSound);
             for (auto& extraball : extraBallVec)
-                if (extraball.needToUpdate)
-                    testCollision(brick, extraball, plusPointSound);
+                //if (extraball.needToUpdate)
+                testCollision(brick, extraball, plusPointSound);
         }
 
         bricks.erase(remove_if(begin(bricks), end(bricks),
@@ -408,16 +420,13 @@ int main() {
             brick.update();
             testCollision(brick, ball, plusPointSound);
             for (auto& extraball : extraBallVec)
-                if (extraball.needToUpdate)
-                    testCollision(brick, extraball, plusPointSound);
+                //if (extraball.needToUpdate)
+                testCollision(brick, extraball, plusPointSound);
         }
 
 
 
-        for (auto& bonus : bonusDropVector) {
-            bonus.update();
-            testCollision(bonus, paddle, bonusSound);
-        }
+
 
         movBricksVector.erase(remove_if(begin(movBricksVector), end(movBricksVector),
             [](const MovingBrick& mBrick) {
@@ -435,19 +444,18 @@ int main() {
         window.draw(ball.shape);
         window.draw(paddle.shape);
         for (auto& extraball : extraBallVec) {
-            if (extraball.needToUpdate) {
-                extraball.update(minusPointSound);
-                testCollision(paddle, extraball, ballSound);
-                testCollision(extraball, ball, ballSound);
-            }
+            //if (extraball.needToUpdate)
+            extraball.update(minusPointSound);
+            testCollision(paddle, extraball, ballSound);
+            testCollision(extraball, ball, ballSound);
         }
         testCollision(paddle, ball, ballSound);
         for (auto& brick : bricks) window.draw(brick.shape);
         for (auto& brick : movBricksVector) window.draw(brick.shape);
         for (auto& brick : bonusDropVector) window.draw(brick.shape);
         for (auto& extraball : extraBallVec)
-            if (extraball.needToUpdate)
-                window.draw(extraball.shape);
+            //if (extraball.needToUpdate)
+            window.draw(extraball.shape);
         ostringstream playerScoreStr;
         playerScoreStr << playerScore;
         score.setString("Score: " + playerScoreStr.str());
