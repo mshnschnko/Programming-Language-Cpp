@@ -13,11 +13,11 @@
 using namespace std;
 using namespace sf;
 
-unsigned int windowWidth{ 800 }, windowHeight{ 600 };
-float ballRadius{ 10.f }, ballVelocity{ 5.f };
-float paddleWidth{ 100.f }, paddleHeight{ 20.f }, paddleVelocity{ 7.5f };
-float blockWidth{ 70.f }, blockHeight{ 20.f };
-int countBlocksX{ 9 }, countBlocksY{ 4 };
+unsigned int windowWidth{ 1600 }, windowHeight{ 900 };
+float ballRadius{ 15.f }, ballVelocity{ 6.f };
+float paddleWidth{ 150.f }, paddleHeight{ 30.f }, paddleVelocity{ 8.5f };
+float blockWidth{ 120.f }, blockHeight{ 30.f };
+int countBlocksX{ 11 }, countBlocksY{ 5 };
 int playerScore{ 0 };
 
 
@@ -353,7 +353,7 @@ int main() {
             }
         }
 
-    RenderWindow window{ {windowWidth, windowHeight}, "Arkanoid" };
+    RenderWindow window{ {windowWidth, windowHeight}, "Arkanoid", Style::Fullscreen };
     window.setFramerateLimit(60);
     /*Texture texture;
     texture.loadFromFile("resources/back.jpg");
@@ -448,12 +448,25 @@ int main() {
 
         window.draw(ball.shape);
         window.draw(paddle.shape);
-        for (auto& extraball : extraBallVec) {
-            //if (extraball.needToUpdate)
-            extraball.update(minusPointSound);
-            testCollision(paddle, extraball, ballSound);
-            testCollision(extraball, ball, ballSound);
+        if (extraBallVec.size() > 0) {
+            for (int i = 0; i < extraBallVec.size() - 1; ++i) {
+                //if (extraball.needToUpdate)
+                extraBallVec[i].update(minusPointSound);
+                testCollision(paddle, extraBallVec[i], ballSound);
+                testCollision(extraBallVec[i], ball, ballSound);
+                for (int j = i + 1; j < extraBallVec.size(); ++j)
+                    testCollision(extraBallVec[i], extraBallVec[j], ballSound);
+            }
+            extraBallVec[extraBallVec.size() - 1].update(minusPointSound);
+            testCollision(paddle, extraBallVec[extraBallVec.size() - 1], ballSound);
+            testCollision(extraBallVec[extraBallVec.size() - 1], ball, ballSound);
         }
+        //for (auto& extraball : extraBallVec) {
+        //    //if (extraball.needToUpdate)
+        //    extraball.update(minusPointSound);
+        //    testCollision(paddle, extraball, ballSound);
+        //    testCollision(extraball, ball, ballSound);
+        //}
         testCollision(paddle, ball, ballSound);
         for (auto& brick : bricks) window.draw(brick.shape);
         for (auto& brick : movBricksVector) window.draw(brick.shape);
