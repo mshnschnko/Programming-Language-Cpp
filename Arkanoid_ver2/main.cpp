@@ -14,10 +14,10 @@ using namespace std;
 using namespace sf;
 
 unsigned int windowWidth{ 800 }, windowHeight{ 600 };
-float ballRadius{ 10.f }, ballVelocity{ 8.f };
-float paddleWidth{ 80.f }, paddleHeight{ 20.f }, paddleVelocity{ 7.5f };
-float blockWidth{ 60.f }, blockHeight{ 20.f };
-int countBlocksX{ 10 }, countBlocksY{ 4 };
+float ballRadius{ 10.f }, ballVelocity{ 5.f };
+float paddleWidth{ 100.f }, paddleHeight{ 20.f }, paddleVelocity{ 7.5f };
+float blockWidth{ 70.f }, blockHeight{ 20.f };
+int countBlocksX{ 9 }, countBlocksY{ 4 };
 int playerScore{ 0 };
 
 
@@ -144,7 +144,7 @@ public:
 
 class MovingBrick : public rectangle {
 public:
-    int hp{ 3 };
+    int hp{ 2 };
     Vector2f velocity{ paddleVelocity, 0.f };
 
     MovingBrick(float mX, float mY) {
@@ -185,6 +185,8 @@ public:
 };
 
 vector <MovingBrick> movBricksVector;
+vector <bool> isFreeForMov(5);
+int firstFree = 0;
 vector <bonusDrop> bonusDropVector;
 //initMoovingBlock
 
@@ -202,13 +204,13 @@ void testCollision(Paddle& mPaddle, Ball& mBall, Sound& ballSound) {
     else
         mBall.velocity.x = ballVelocity;*/
 
-    if (fabs(mBall.bottom() - mPaddle.top()) < 7)
+    if (fabs(mBall.bottom() - mPaddle.top()) < 6)
         mBall.velocity.y = -ballVelocity;
-    else if (fabs(mBall.top() - mPaddle.bottom()) < 7)
+    else if (fabs(mBall.top() - mPaddle.bottom()) < 6)
         mBall.velocity.y = ballVelocity;
-    else if (fabs(mBall.right() - mPaddle.left()) < 7)
+    else if (fabs(mBall.right() - mPaddle.left()) < 6)
         mBall.velocity.x = -ballVelocity;
-    else if (fabs(mBall.left() - mPaddle.right()) < 7)
+    else if (fabs(mBall.left() - mPaddle.right()) < 6)
         mBall.velocity.x = ballVelocity;
     ballSound.play();
 }
@@ -279,8 +281,11 @@ void testCollision(MovingBrick& mBrick, Ball& mBall, Sound& plusPointSound) {
 
 void testCollision(bonusDrop& mBonus, Paddle& mPaddle, Sound& bonus) {
     if (!isIntersecting(mBonus, mPaddle)) return;
-    if (mBonus.bonus == bonusType::moovingBlock)
-        movBricksVector.emplace_back(mBonus.x(), (movBricksVector.size() + countBlocksY + 2) * (blockHeight + 3));
+    if (mBonus.bonus == bonusType::moovingBlock) {
+        movBricksVector.emplace_back(mBonus.x(), (movBricksVector.size() + countBlocksY + 5) * (blockHeight + 3));
+        firstFree++;
+    }
+        
     else if (mBonus.bonus == bonusType::extraBall)
         extraBallVec.emplace_back(mBonus.x(), mPaddle.y() - 20);
     mBonus.catched = true;
@@ -311,6 +316,8 @@ void testCollision(ExtraBall& mExtraBall, Ball& mBall, Sound& ballSound) {
 
 int main() {
     srand(time(NULL));
+    for (int i = 0; i < 5; ++i)
+        isFreeForMov[i] = true;
     Ball ball{ windowWidth / 2.f, windowHeight / 2.f };
     Paddle paddle{ windowWidth / 2.f, windowHeight - 50.f };
     vector<Brick> bricks;
@@ -332,23 +339,25 @@ int main() {
             }
             switch (iY) {
             case 0:
-                bricks.emplace_back((iX + 1) * (blockWidth + 3) + 32, (iY + 2) * (blockHeight + 3), -1, brown, bonus, false);
+                bricks.emplace_back((iX + 1) * (blockWidth + 5) + 32, (iY + 2) * (blockHeight + 5), -1, brown, bonus, false);
                 break;
             case 2:
-                bricks.emplace_back((iX + 1) * (blockWidth + 3) + 32, (iY + 2) * (blockHeight + 3), 2, Color::Green, bonus, false);
+                bricks.emplace_back((iX + 1) * (blockWidth + 5) + 32, (iY + 2) * (blockHeight + 5), 2, Color::Green, bonus, false);
                 break;
             default:
                 if (iX % 3 == 0)
-                    bricks.emplace_back((iX + 1) * (blockWidth + 3) + 32, (iY + 2) * (blockHeight + 3), 1, Color::Cyan, bonus, true);
+                    bricks.emplace_back((iX + 1) * (blockWidth + 5) + 32, (iY + 2) * (blockHeight + 5), 1, Color::Cyan, bonus, true);
                 else
-                    bricks.emplace_back((iX + 1) * (blockWidth + 3) + 32, (iY + 2) * (blockHeight + 3), 1, Color::Yellow, bonus, false);
+                    bricks.emplace_back((iX + 1) * (blockWidth + 5) + 32, (iY + 2) * (blockHeight + 5), 1, Color::Yellow, bonus, false);
                 break;
             }
         }
 
     RenderWindow window{ {windowWidth, windowHeight}, "Arkanoid" };
     window.setFramerateLimit(60);
-
+    /*Texture texture;
+    texture.loadFromFile("resources/back.jpg");
+    Sprite sprite(texture);*/
     Font font;
     font.loadFromFile("resources/sansation.ttf");
     Text score("", font, 20);
@@ -385,7 +394,7 @@ int main() {
 
     while (true) {
         window.clear(Color::Black);
-
+        //window.draw(sprite);
         if (Keyboard::isKeyPressed(Keyboard::Key::Escape)) break;
 
         ball.update(minusPointSound);
@@ -423,10 +432,6 @@ int main() {
                 //if (extraball.needToUpdate)
                 testCollision(brick, extraball, plusPointSound);
         }
-
-
-
-
 
         movBricksVector.erase(remove_if(begin(movBricksVector), end(movBricksVector),
             [](const MovingBrick& mBrick) {
